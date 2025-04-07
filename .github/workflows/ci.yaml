@@ -1,0 +1,26 @@
+name: CI Pipeline
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  build:
+    runs-on: self-hosted
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Create Docker Compose file from template
+        env:
+          CLOUDFLARE_TOKEN: ${{ secrets.CLOUDFLARE_TOKEN }}
+          DOCKER_COMPOSE_PATH: ${{ secrets.DOCKER_COMPOSE_PATH }}
+        run: |
+          PROJECT_NAME=$(basename $(pwd))
+          sed -i "s/_CLOUDFLARE_TOKEN_/$CLOUDFLARE_TOKEN/" ./docker-compose.yml
+          ls -l
+          mv ./docker-compose.yml $DOCKER_COMPOSE_PATH/$PROJECT_NAME.yml
+          docker stack deploy --compose-file $DOCKER_COMPOSE_PATH/$PROJECT_NAME.yml $PROJECT_NAME >> /dev/null

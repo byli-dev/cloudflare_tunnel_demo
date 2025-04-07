@@ -1,0 +1,10 @@
+version: '3'
+services:
+  httpd_alpine_demo:
+    image: httpd:alpine
+  vpn:
+    image: cloudflare/cloudflared
+    restart: unless-stopped
+    command: tunnel run
+    environment:
+      - TUNNEL_TOKEN=_CLOUDFLARE_TOKEN_
